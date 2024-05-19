@@ -32,6 +32,9 @@ local Modifiers = {
 	LessChord = 23,
 	MaxChord = 24,
 	Taiko = 25,
+	AddLane = 26,
+	MaxChordLN = 27,
+	FixMap = 28,
 }
 ModifierModel.Modifiers = Modifiers
 
