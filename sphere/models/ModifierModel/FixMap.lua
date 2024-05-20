@@ -1,5 +1,4 @@
 local Modifier = require("sphere.models.ModifierModel.Modifier")
-local table_util = require("table_util")
 ---@class sphere.FixMap: sphere.Modifier
 ---@operator call: sphere.FixMap
 local FixMap = Modifier + {}
@@ -31,11 +30,10 @@ end
 ---@param config table
 function FixMap:apply(config)
 
-	self:applyFix(config, config.value)
+	FixMap:applyFix(self.noteChart, config.value)
 end
 -- use this method if your modifier is breaking a map
-function FixMap:applyFix(config, duration)
-	local noteChart = self.noteChart
+function FixMap:applyFix(noteChart, duration)
 	self.notes = {}
 	for noteDatas, inputType, inputIndex, layerDataIndex in noteChart:getInputIterator() do
 		for i, noteData in ipairs(noteDatas) do
@@ -71,7 +69,7 @@ function FixMap:applyFix(config, duration)
 			if
 				_note ~= notes[x] and
 				_note.inputIndex == notes[x].inputIndex and
-				self:getEndTime(_note) > notes[x].noteData.timePoint.absoluteTime - duration and
+				self:getEndTime(_note.noteData) > notes[x].noteData.timePoint.absoluteTime - duration and
 				_note.noteData.timePoint.absoluteTime <= notes[x].noteData.timePoint.absoluteTime
 			then
 				table.insert(obstructions, _note)
@@ -90,7 +88,6 @@ function FixMap:applyFix(config, duration)
 				end
                 -- i = -1, 1, -2, 2, -3...
                 local newColumn = notes[x].inputIndex + i;
-
 				-- out of 1 bound: skip, out of both: break
 				if newColumn < 1 or newColumn > inputCount then
 					local nextNewColumn = notes[x].inputIndex + i * -1
@@ -103,7 +100,7 @@ function FixMap:applyFix(config, duration)
 						if
 							_note ~= notes[x] and
 							_note.inputIndex == newColumn and
-							self:getEndTime(_note) > notes[x].noteData.timePoint.absoluteTime - duration and
+							self:getEndTime(_note.noteData) > notes[x].noteData.timePoint.absoluteTime - duration and
 							_note.noteData.timePoint.absoluteTime <= notes[x].noteData.timePoint.absoluteTime
 						then
 							table.insert(newObstructions, _note)
@@ -172,12 +169,34 @@ function FixMap:shortenLN(noteChart, note, LN ,duration)
     end
 end
 
-function FixMap:getEndTime(note)
-	if note.noteData.noteType == "LongNoteStart" then
-		return note.noteData.endNoteData.timePoint.absoluteTime
+function FixMap:getEndTime(noteData)
+	if noteData.noteType == "LongNoteStart" then
+		return noteData.endNoteData.timePoint.absoluteTime
 	else
-		return note.noteData.timePoint.absoluteTime
+		return noteData.timePoint.absoluteTime
 	end
+end
+
+
+function FixMap:FindShortestJack(noteChart)
+	local minJack = math.huge
+	for noteDatas, inputType, inputIndex in noteChart:getInputIterator() do
+		local prevTime = math.huge * -1
+		for i, noteData in ipairs(noteDatas) do
+			if
+			noteData.noteType == "ShortNote" or
+			noteData.noteType == "LongNoteStart" or
+			noteData.noteType == "LongNoteEnd"
+			then
+				local timeDif = noteData.timePoint.absoluteTime - prevTime
+				if timeDif < minJack then
+					minJack = timeDif
+				end
+				prevTime = noteData.timePoint.absoluteTime
+			end
+		end
+	end
+	return minJack
 end
 
 return FixMap
