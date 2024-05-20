@@ -8,7 +8,7 @@ local AddLane = Modifier + {}
 AddLane.name = "AddLane"
 
 AddLane.defaultValue = 1
-AddLane.values = {1, 2, 3, 4, 5 , 6, 7, 8, 9, 10}
+AddLane.values = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 
 AddLane.description = "Insert empty columns (to the right)"
 
@@ -22,14 +22,14 @@ end
 ---@param config table
 function AddLane:apply(config)
 	local noteChart = self.noteChart
-	local value = config.value
-
 	local inputMode = noteChart.inputMode
-
-	for inputType, inputCount in pairs(inputMode) do
-		inputMode[inputType] = inputCount + value
+	local keyValue = inputMode["key"]
+	keyValue = keyValue + config.value
+	for _, layerData in noteChart:getLayerDataIterator() do
+		for i = 1 , keyValue do
+			layerData.noteDatas["key"][i] = layerData.noteDatas["key"][i] or {}
+		end
 	end
-
 	noteChart:compute()
 end
 
