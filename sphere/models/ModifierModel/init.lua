@@ -35,6 +35,7 @@ local Modifiers = {
 	AddLane = 26,
 	MaxChordLN = 27,
 	FixMap = 28,
+	Shuffle = 29,
 }
 ModifierModel.Modifiers = Modifiers
 
