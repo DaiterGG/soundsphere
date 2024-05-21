@@ -14,7 +14,7 @@ for i = 1, 10 do
 	table.insert(MaxChordLN.values, i)
 end
 
-MaxChordLN.description = "Convert long notes to short notes in a chord exept value amount"
+MaxChordLN.description = "Convert long notes to short notes in a chord, exept \"value\" amount"
 
 ---@param config table
 ---@return string

@@ -23,7 +23,7 @@ end
 function AddLane:apply(config)
 	local noteChart = self.noteChart
 	local inputMode = noteChart.inputMode
-	local keyValue = inputMode["key"]
+	local keyValue = inputMode.key
 	keyValue = keyValue + config.value
 	for _, layerData in noteChart:getLayerDataIterator() do
 		for i = 1 , keyValue do
