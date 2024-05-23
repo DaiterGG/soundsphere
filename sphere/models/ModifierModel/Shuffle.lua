@@ -64,14 +64,12 @@ function Shuffle:apply(config)
 		end
 	end
 	local persentage = config.value / 10
+	local seed = -10 + math.random(persentage, 10) -- 0 if 100% of notes should be shuffled
+	local count = seed
 	for _, n in ipairs(notes) do
-		local seed = -9 + math.random(persentage, 10) -- 1 if 100% of notes should be shuffled
-		local count = seed
 		if count >= 10 then count = 1
 		else count = count + 1 end
-
-		if persentage >= count then
-			
+		if persentage >= count and count > 0 then
 			local rngIndex = math.random(1, keyCount)
 			local datas = noteChart.layerDatas[n.layerDataIndex].noteDatas[n.inputType]
 			datas[rngIndex] = datas[rngIndex] or {}

@@ -32,12 +32,12 @@ local Modifiers = {
 	LessChord = 23,
 	MaxChord = 24,
 	Taiko = 25,
-	AddLane = 26,
-	MaxChordLN = 27,
-	FixMap = 28,
-	Shuffle = 29,
-	MoreChord = 30,
-	MaxOverlap = 31,
+	AddLane = 99901,
+	MaxChordLN = 99902,
+	FixMap = 99903,
+	Shuffle = 99904,
+	MoreChord = 99905,
+	MaxOverlap = 99906,
 }
 ModifierModel.Modifiers = Modifiers
 
