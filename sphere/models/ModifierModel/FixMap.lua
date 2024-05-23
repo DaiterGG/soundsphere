@@ -5,17 +5,17 @@ local FixMap = Modifier + {}
 
 FixMap.name = "FixMap"
 
-FixMap.defaultValue = 0.4
+FixMap.defaultValue = 0.2
 FixMap.values = {}
 
 for i = 0, 25 do
 	table.insert(FixMap.values, i * 0.01)  -- [0, 0.25]
 end
 for i = 1, 15 do
-	table.insert(FixMap.values, 0.25 + i * 0.05)  -- [0.25, 1]
+	table.insert(FixMap.values, 0.25 + i * 0.05)  -- [0.30, 1]
 end
 for i = 1, 30 do
-	table.insert(FixMap.values,1 + i * 0.1)  -- [1, 4]
+	table.insert(FixMap.values,1 + i * 0.1)  -- [1.1, 4]
 end
 
 FixMap.description = "Prevent imposible overlaping and jacks shorter than value"
@@ -34,29 +34,31 @@ function FixMap:apply(config)
 end
 -- use this method if your modifier is breaking a map
 function FixMap:applyFix(noteChart, duration)
-	for noteDatas, inputType, inputIndex, layerDataIndex in noteChart:getInputIterator() do
-		for i, noteData in ipairs(noteDatas) do
-			if
-				noteData.noteType == "ShortNote" or
-				noteData.noteType == "LongNoteEnd" or
-				noteData.noteType == "LongNoteStart"
-				then
-					print(inputIndex .. " " .. noteData.timePoint.absoluteTime .. " " .. noteData.noteType)
-					if noteData.endNoteData then print(noteData.endNoteData.timePoint.absoluteTime .. " " .. noteData.endNoteData.noteType) end
-				end
-		end
-	end
-	print("________________________________________--")
+	-- for noteDatas, inputType, inputIndex, layerDataIndex in noteChart:getInputIterator() do
+	-- 	for i, noteData in ipairs(noteDatas) do
+	-- 		if
+	-- 			noteData.noteType == "ShortNote" or
+	-- 			noteData.noteType == "LongNoteEnd" or
+	-- 			noteData.noteType == "LongNoteStart"
+	-- 			then
+	-- 				print(inputIndex .. " " .. noteData.timePoint.absoluteTime .. " " .. noteData.noteType)
+	-- 				if noteData.endNoteData then print(noteData.endNoteData.timePoint.absoluteTime .. " " .. noteData.endNoteData.noteType) end
+	-- 			end
+	-- 	end
+	-- end
+	-- print("________________________________________--")
 	local notes = {}
 	for noteDatas, inputType, inputIndex, layerDataIndex in noteChart:getInputIterator() do
 		for i, noteData in ipairs(noteDatas) do
+			if noteData.noteType == "ShortNote" and
+				noteData.endNoteData
+			then
+				noteData.endNoteData.noteType = "Ignore"
+			end
 			if
 				noteData.noteType == "ShortNote" or
 				noteData.noteType == "LongNoteStart"
 			then
-
-
-
 				table.insert(notes, {
 					noteData = noteData,
 					inputType = inputType,
@@ -80,6 +82,7 @@ function FixMap:applyFix(noteChart, duration)
 		x = x + 1
 		local obstructions = {}
 		for  _, _note in pairs(notes) do
+			--if _note.noteData == nil then print("nilllllllllllll") end
 			if
 				_note ~= notes[x] and
 				_note.inputIndex == notes[x].inputIndex and
@@ -89,7 +92,7 @@ function FixMap:applyFix(noteChart, duration)
 				table.insert(obstructions, _note)
 			end
 		end
-		print("#obstructions " .. #obstructions)
+		--print("#obstructions " .. #obstructions)
 
 		if #obstructions > 0 then
 
@@ -138,16 +141,15 @@ function FixMap:applyFix(noteChart, duration)
 			local nToChange = noteChart.layerDatas[notes[x].layerDataIndex].noteDatas[notes[x].inputType][notes[x].inputIndex][notes[x].noteDataIndex]
 			--obstruction, possible move to closest space
 			if foundNewColumn ~= -1 then
-				print("obstruction, possible move to closest space ")
-
+				--print("obstruction, possible move to closest space ")
 				notes[x].noteData = notes[x].noteData:clone()
 				if notes[x].noteData.endNoteData then
 					notes[x].noteData.endNoteData = notes[x].noteData.endNoteData:clone()
 				end
-
+				
 				noteChart.layerDatas[notes[x].layerDataIndex]:addNoteData(notes[x].noteData, notes[x].inputType, foundNewColumn)
-
-				notes[x].noteData.noteType = "Ignore"
+				
+				nToChange.noteType = "Ignore"
 				if nToChange.endNoteData then
 					noteChart.layerDatas[notes[x].layerDataIndex]:addNoteData(notes[x].noteData.endNoteData, notes[x].inputType, foundNewColumn)
 
@@ -162,13 +164,13 @@ function FixMap:applyFix(noteChart, duration)
 				obstructions[1].noteData.endNoteData.noteType == "LongNoteEnd" and
 				obstructions[1].noteData.timePoint.absoluteTime <= notes[x].noteData.timePoint.absoluteTime - duration
 			then
-				print("possible to shorten HoldNote on current column to fit")
+				--print("possible to shorten HoldNote on current column to fit")
 
 				self:shortenLN(noteChart,notes[x],obstructions[1],duration)
 			--obstruction, all space is obstructed,
             --possible to shorten HoldNote on any other column to fit
 			elseif bestLNToShorten then
-				print("possible to shorten HoldNote on any other column to fit")
+				--print("possible to shorten HoldNote on any other column to fit")
 
 				self:shortenLN(noteChart,notes[x],bestLNToShorten,duration)
 				notes[x].noteData = notes[x].noteData:clone()
@@ -186,7 +188,7 @@ function FixMap:applyFix(noteChart, duration)
 				notes[x].inputIndex = bestLNToShorten.inputIndex
 			--give up
 			else
-				print("give up")
+				--print("give up")
 
 				notes[x].noteData.noteType = "Ignore"
 				if notes[x].noteData.endNoteData then notes[x].noteData.endNoteData.noteType = "Ignore" end
@@ -195,18 +197,18 @@ function FixMap:applyFix(noteChart, duration)
 			end
 		end
 	end
-	for noteDatas, inputType, inputIndex, layerDataIndex in noteChart:getInputIterator() do
-		for i, noteData in ipairs(noteDatas) do
-			if
-				noteData.noteType == "ShortNote" or
-				noteData.noteType == "LongNoteEnd" or
-				noteData.noteType == "LongNoteStart"
-				then
-					print(inputIndex .. " " .. noteData.timePoint.absoluteTime .. " " .. noteData.noteType)
-					if noteData.endNoteData then print(noteData.endNoteData.timePoint.absoluteTime .. " " .. noteData.endNoteData.noteType) end
-				end
-		end
-	end
+	-- for noteDatas, inputType, inputIndex, layerDataIndex in noteChart:getInputIterator() do
+	-- 	for i, noteData in ipairs(noteDatas) do
+	-- 		if
+	-- 			noteData.noteType == "ShortNote" or
+	-- 			noteData.noteType == "LongNoteEnd" or
+	-- 			noteData.noteType == "LongNoteStart"
+	-- 			then
+	-- 				print(inputIndex .. " " .. noteData.timePoint.absoluteTime .. " " .. noteData.noteType)
+	-- 				if noteData.endNoteData then print(noteData.endNoteData.timePoint.absoluteTime .. " " .. noteData.endNoteData.noteType) end
+	-- 			end
+	-- 	end
+	-- end
 	noteChart:compute()
 end
 
@@ -214,7 +216,8 @@ function FixMap:shortenLN(noteChart, note, LN ,duration)
     local shorterEnd = note.noteData.timePoint.absoluteTime - duration;
 	local nToChange = noteChart.layerDatas[LN.layerDataIndex].noteDatas[LN.inputType][LN.inputIndex][LN.noteDataIndex]
     if shorterEnd - LN.noteData.timePoint.absoluteTime >= duration then
-		LN.noteData.endNoteData.timePoint = noteChart.layerDatas[LN.layerDataIndex]:getTimePoint(shorterEnd)
+		LN.noteData.endNoteData.timePoint = noteChart.layerDatas[LN.layerDataIndex]:getTimePoint(shorterEnd, LN.noteData.endNoteData.timePoint.side)
+		LN.noteData.endNoteData.timePoint.absoluteTime = shorterEnd
     else
 		--no micro LNs
 		LN.noteData.noteType = "ShortNote"

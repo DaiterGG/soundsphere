@@ -27,7 +27,9 @@ local Modifiers = {
 	"AddLane",
 	"MaxChordLN",
 	"FixMap",
-	"Shuffle"
+	"Shuffle",
+	"MoreChord",
+	"MaxOverlap",
 }
 ModifierSelectModel.modifiers = Modifiers
 

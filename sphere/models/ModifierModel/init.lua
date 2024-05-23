@@ -36,6 +36,8 @@ local Modifiers = {
 	MaxChordLN = 27,
 	FixMap = 28,
 	Shuffle = 29,
+	MoreChord = 30,
+	MaxOverlap = 31,
 }
 ModifierModel.Modifiers = Modifiers
 
