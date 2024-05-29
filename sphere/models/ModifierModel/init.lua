@@ -38,6 +38,7 @@ local Modifiers = {
 	Shuffle = 99904,
 	MoreChord = 99905,
 	MaxOverlap = 99906,
+	Coop = 99907,
 }
 ModifierModel.Modifiers = Modifiers
 

@@ -30,6 +30,7 @@ local Modifiers = {
 	"Shuffle",
 	"MoreChord",
 	"MaxOverlap",
+	"Coop",
 }
 ModifierSelectModel.modifiers = Modifiers
 
