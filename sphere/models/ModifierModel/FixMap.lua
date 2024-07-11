@@ -171,13 +171,17 @@ function FixMap:applyFix(noteChart, duration)
 				--print("give up")
 
 				notes[x].noteData.noteType = "Ignore"
-				if notes[x].noteData.endNoteData then notes[x].noteData.endNote.noteType = "Ignore" end
+				if notes[x].noteData.endNote then notes[x].noteData.endNote.noteType = "Ignore" end
 				table.remove(notes, x)
 				x = x - 1
 			end
 		end
 	end
+	-- local ends = 0
+	-- local starts = 0
 	-- for _, noteData in noteChart.notes:iter() do
+	-- 	if noteData.noteType == "LongNoteStart" then starts = starts + 1 end
+	-- 	if noteData.noteType == "LongNoteEnd" then ends = ends + 1 end
 	-- 	if
 	-- 		noteData.noteType == "ShortNote" or
 	-- 		noteData.noteType == "LongNoteEnd" or
@@ -185,12 +189,18 @@ function FixMap:applyFix(noteChart, duration)
 	-- 	then
 	-- 		print(noteData.column .. " " .. noteData.visualPoint.point.absoluteTime .. " " .. noteData.noteType)
 	-- 		if noteData.endNote then
-	-- 			print(noteData.endNote.visualPoint.point.absoluteTime ..
+	-- 			print("|_" .. noteData.endNote.column .. " " .. noteData.endNote.visualPoint.point.absoluteTime ..
 	-- 				" " .. noteData.endNote.noteType)
+	-- 		end
+	-- 		if noteData.startNote then
+	-- 			print("|_" .. noteData.startNote.column .. " " .. noteData.startNote.visualPoint.point.absoluteTime ..
+	-- 				" " .. noteData.startNote.noteType)
 	-- 		end
 	-- 	end
 	-- end
+	-- print("starts " .. starts .. " ends " .. ends)
 	-- print("________________________________________--")
+
 	noteChart:compute()
 end
 
