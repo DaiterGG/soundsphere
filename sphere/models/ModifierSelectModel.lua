@@ -24,6 +24,13 @@ local Modifiers = {
 	"LessChord",
 	"FullLongNote",
 	"MinLnLength",
+	"AddLane",
+	"MaxChordLN",
+	"FixMap",
+	"Shuffle",
+	"MoreChord",
+	"MaxOverlap",
+	"Coop",
 }
 ModifierSelectModel.modifiers = Modifiers
 

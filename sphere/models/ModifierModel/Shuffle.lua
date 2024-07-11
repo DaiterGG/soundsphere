@@ -1,0 +1,91 @@
+local Modifier = require("sphere.models.ModifierModel.Modifier")
+local FixMap = require("sphere.models.ModifierModel.FixMap")
+---@class sphere.Shuffle: sphere.Modifier
+---@operator call: sphere.Shuffle
+local Shuffle = Modifier + {}
+
+Shuffle.name = "Shuffle"
+
+Shuffle.description = "Shuffle value% notes around (true random)"
+
+Shuffle.defaultValue = 100
+Shuffle.values = {}
+
+for i = 1, 10 do
+	table.insert(Shuffle.values, i * 10)
+end
+
+---@param config table
+---@return string
+---@return string
+function Shuffle:getString(config)
+	return "SFL", tostring(config.value)
+end
+
+---@param config table
+function Shuffle:apply(config, noteChart)
+	local notes = {}
+	local keyCount = noteChart.inputMode.key
+	local sj = FixMap:findShortestJack(noteChart)
+	print("shortest jack " .. sj)
+	-- for noteDatas, inputType, inputIndex, layerDataIndex in noteChart:getInputIterator() do
+	-- 	for i, noteData in ipairs(noteDatas) do
+	-- 		if
+	-- 			noteData.noteType == "ShortNote" or
+	-- 			noteData.noteType == "LongNoteEnd" or
+	-- 			noteData.noteType == "Ignore" or
+	-- 			noteData.noteType == "LongNoteStart"
+	-- 		then
+	-- 			print(inputIndex .. " " .. noteData.timePoint.absoluteTime .. " " .. noteData.noteType)
+	-- 			if noteData.endNoteData then print(noteData.endNoteData.timePoint.absoluteTime .. " " .. noteData.endNoteData.noteType) end
+	-- 		end
+	-- 	end
+	-- end
+	-- print("_____________________________")
+
+	local persentage = config.value / 10
+	local seed = -10 + math.random(persentage, 10) -- 0 if 100% of notes should be shuffled
+	local count = seed
+	for _, n in noteChart.notes:iter() do
+		if n.noteType == "ShortNote" and
+			n.endNote
+		then
+			n.endNote.noteType = "Ignore"
+		end
+		if
+			n.noteType == "ShortNote" or
+			n.noteType == "LongNoteStart" then
+			if count >= 10 then
+				count = 1
+			else
+				count = count + 1
+			end
+			if persentage >= count and count > 0 then
+				local rngIndex = math.random(1, keyCount)
+				n.column = "key" .. rngIndex
+				if n.endNote then
+					n.endNote.column = "key" .. rngIndex
+				end
+			end
+		end
+	end
+	-- for noteDatas, inputType, inputIndex, layerDataIndex in noteChart:getInputIterator() do
+	-- 	for i, noteData in ipairs(noteDatas) do
+	-- 		if
+	-- 			noteData.noteType == "ShortNote" or
+	-- 			noteData.noteType == "LongNoteEnd" or
+	-- 			noteData.noteType == "Ignore" or
+	-- 			noteData.noteType == "LongNoteStart"
+	-- 		then
+	-- 			print(inputIndex .. " " .. noteData.timePoint.absoluteTime .. " " .. noteData.noteType)
+	-- 			if noteData.endNoteData then print(noteData.endNoteData.timePoint.absoluteTime .. " " .. noteData.endNoteData.noteType) end
+	-- 		end
+	-- 	end
+	-- end
+	-- print("compute_____________________________")
+	noteChart:compute()
+
+	FixMap:applyFix(noteChart, sj)
+end
+
+return Shuffle
