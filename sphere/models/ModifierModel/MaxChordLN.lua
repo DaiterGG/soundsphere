@@ -16,7 +16,7 @@ for i = 1, 10 do
 	table.insert(MaxChordLN.values, i)
 end
 
-MaxChordLN.description = "Convert long notes to short notes in a chord, exept \"value\" amount"
+MaxChordLN.description = "Convert long notes to short notes in a chord, exept 'value' amount"
 
 
 ---@param config table
@@ -105,7 +105,7 @@ function MaxChordLN:apply(config, chart)
 				if note.noteType == "LongNoteStart" then
 					table.insert(notes, {
 						noteData = note,
-						time = note.visualPoint.point.absoluteTime,
+						time = note:getTime(),
 						nextTime = getNextTime(_notes, i),
 						prevTime = getNextTime(_notes, i, -1),
 						inputType = inputIndex,
@@ -190,18 +190,10 @@ function MaxChordLN:apply(config, chart)
 
 	for _, note in ipairs(deletedNotes) do
 		local noteData = note.noteData
-		-- noteData.noteType = "SoundNote"
 		noteData.noteType = "ShortNote"
 		if noteData.endNote then
 			noteData.endNote.noteType = "Ignore"
 		end
-
-		local soundNote = Note(noteData.visualPoint, "auto" .. note.inputIndex)
-
-		soundNote.noteType = "SoundNote"
-		soundNote.sounds, noteData.sounds = noteData.sounds, {}
-
-		chart.notes:insert(soundNote)
 	end
 end
 

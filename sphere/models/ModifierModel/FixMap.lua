@@ -19,7 +19,7 @@ for i = 1, 30 do
 	table.insert(FixMap.values, 1 + i * 0.1) -- [1.1, 4]
 end
 
-FixMap.description = "Prevent imposible overlaping and jacks shorter than value"
+FixMap.description = "Prevent imposible overlaping and jacks shorter than 'value'"
 
 ---@param config table
 ---@return string
@@ -33,20 +33,10 @@ function FixMap:apply(config, chart)
 	FixMap:applyFix(chart, config.value)
 end
 
+	
 -- use this method if your modifier is breaking a map
 function FixMap:applyFix(noteChart, duration)
-	-- for _, noteData in noteChart.notes:iter() do
-	-- 	if
-	-- 		noteData.noteType == "ShortNote" or
-	-- 		noteData.noteType == "LongNoteEnd" or
-	-- 		noteData.noteType == "LongNoteStart"
-	-- 	then
-	-- 		print(noteData.column .. " " .. noteData.visualPoint.point.absoluteTime .. " " .. noteData.noteType)
-	-- 		if noteData.endNote then print(noteData.endNote.visualPoint.point.absoluteTime ..
-	-- 			" " .. noteData.endNote.noteType) end
-	-- 	end
-	-- end
-	-- print("________________________________________--")
+	
 	local notes = {}
 	for _, noteData in noteChart.notes:iter() do
 		if noteData.noteType == "ShortNote" and
@@ -74,12 +64,11 @@ function FixMap:applyFix(noteChart, duration)
 		x = x + 1
 		local obstructions = {}
 		for _, _note in pairs(notes) do
-			--if _note.noteData == nil then print("nilllllllllllll") end
 			if
 				_note ~= notes[x] and
 				_note.noteData.column == notes[x].noteData.column and
-				self:getEndTime(_note.noteData) > notes[x].noteData.visualPoint.point.absoluteTime - duration and
-				_note.noteData.visualPoint.point.absoluteTime <= notes[x].noteData.visualPoint.point.absoluteTime
+				self:getEndTime(_note.noteData) > notes[x].noteData:getTime() - duration and
+				_note.noteData:getTime() <= notes[x].noteData:getTime()
 			then
 				table.insert(obstructions, _note)
 			end
@@ -112,8 +101,8 @@ function FixMap:applyFix(noteChart, duration)
 						if
 							_note ~= notes[x] and
 							_index == newColumn and
-							self:getEndTime(_note.noteData) > notes[x].noteData.visualPoint.point.absoluteTime - duration and
-							_note.noteData.visualPoint.point.absoluteTime <= notes[x].noteData.visualPoint.point.absoluteTime
+							self:getEndTime(_note.noteData) > notes[x].noteData:getTime() - duration and
+							_note.noteData:getTime() <= notes[x].noteData:getTime()
 						then
 							table.insert(newObstructions, _note)
 						end
@@ -123,7 +112,7 @@ function FixMap:applyFix(noteChart, duration)
 						break
 					else
 						if not LNFound and #newObstructions == 1
-							and newObstructions[1].noteData.visualPoint.point.absoluteTime <= notes[x].noteData.visualPoint.point.absoluteTime - duration
+							and newObstructions[1].noteData:getTime() <= notes[x].noteData:getTime() - duration
 						then
 							LNFound = true
 							bestLNToShorten = newObstructions[1];
@@ -141,14 +130,13 @@ function FixMap:applyFix(noteChart, duration)
 				if notes[x].noteData.endNote then
 					notes[x].noteData.endNote.column = new_column
 				end
-
 				-- only obstruction is HoldNote, all space is obstructed,
 				-- possible to shorten HoldNote on current column to fit
 			elseif
 				#obstructions == 1 and
 				obstructions[1].noteData.noteType == "LongNoteStart" and
 				obstructions[1].noteData.endNote.noteType == "LongNoteEnd" and
-				obstructions[1].noteData.visualPoint.point.absoluteTime <= notes[x].noteData.visualPoint.point.absoluteTime - duration
+				obstructions[1].noteData:getTime() <= notes[x].noteData:getTime() - duration
 			then
 				--print("possible to shorten HoldNote on current column to fit")
 
@@ -187,26 +175,26 @@ function FixMap:applyFix(noteChart, duration)
 	-- 		noteData.noteType == "LongNoteEnd" or
 	-- 		noteData.noteType == "LongNoteStart"
 	-- 	then
-	-- 		print(noteData.column .. " " .. noteData.visualPoint.point.absoluteTime .. " " .. noteData.noteType)
+	-- 		print(noteData.column .. " " .. noteData:getTime() .. " " .. noteData.noteType)
 	-- 		if noteData.endNote then
-	-- 			print("|_" .. noteData.endNote.column .. " " .. noteData.endNote.visualPoint.point.absoluteTime ..
+	-- 			print("|_" .. noteData.endNote.column .. " " .. noteData.endNote:getTime() ..
 	-- 				" " .. noteData.endNote.noteType)
 	-- 		end
 	-- 		if noteData.startNote then
-	-- 			print("|_" .. noteData.startNote.column .. " " .. noteData.startNote.visualPoint.point.absoluteTime ..
+	-- 			print("|_" .. noteData.startNote.column .. " " .. noteData.startNote:getTime() ..
 	-- 				" " .. noteData.startNote.noteType)
 	-- 		end
 	-- 	end
 	-- end
 	-- print("starts " .. starts .. " ends " .. ends)
-	-- print("________________________________________--")
+	-- print("________________________________________")
 
 	noteChart:compute()
 end
 
 function FixMap:shortenLN(noteChart, note, LN, duration)
-	local shorterEnd = note.noteData.visualPoint.point.absoluteTime - duration;
-	if shorterEnd - LN.noteData.visualPoint.point.absoluteTime >= duration then
+	local shorterEnd = note.noteData:getTime() - duration;
+	if shorterEnd - LN.noteData:getTime() >= duration then
 		local layer = noteChart.layers.main
 		local p = layer:getPoint(shorterEnd)
 		local vp = layer.visuals.main:newPoint(p)
@@ -220,9 +208,9 @@ end
 
 function FixMap:getEndTime(noteData)
 	if noteData.noteType == "LongNoteStart" then
-		return noteData.endNote.visualPoint.point.absoluteTime
+		return noteData.endNote:getTime()
 	else
-		return noteData.visualPoint.point.absoluteTime
+		return noteData:getTime()
 	end
 end
 
@@ -234,11 +222,11 @@ function FixMap:findShortestJack(noteChart)
 		if inputType == "key" then
 			local prevTime = math.huge * -1
 			for i, noteData in ipairs(columnChart) do
-				local timeDif = noteData.visualPoint.point.absoluteTime - prevTime
+				local timeDif = noteData:getTime() - prevTime
 				if timeDif < minJack then
 					minJack = timeDif
 				end
-				prevTime = noteData.visualPoint.point.absoluteTime
+				prevTime = noteData:getTime()
 			end
 		end
 	end

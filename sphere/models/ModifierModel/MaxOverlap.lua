@@ -13,7 +13,7 @@ for i = 0, 10 do
 	table.insert(MaxOverlap.values, i)
 end
 
-MaxOverlap.description = "Limit amout of LN overlap at any point"
+MaxOverlap.description = "Limit the amount of LN overlap at any point"
 
 ---@param config table
 ---@return string
@@ -23,50 +23,30 @@ function MaxOverlap:getString(config)
 end
 
 ---@param config table
-function MaxOverlap:apply(config, noteChart)
+function MaxOverlap:apply(config, chart)
 	local limit = config.value
 
-	local notes = {}
-	for _, noteData in noteChart.notes:iter() do
-		if noteData.noteType == "ShortNote" and
-			noteData.endNoteData
-		then
-			noteData.endNoteData.noteType = "Ignore"
-		end
-		if
-			noteData.noteType == "ShortNote" or
-			noteData.noteType == "LongNoteEnd" or
-			noteData.noteType == "LongNoteStart"
-		then
-			table.insert(notes, {
-				noteData = noteData,
-			})
-		end
-	end
-
-	table.sort(notes, function(a, b)
-		if a.noteData.visualPoint.point.absoluteTime < b.noteData.visualPoint.point.absoluteTime then
-			return true
-		elseif a.noteData.visualPoint == b.noteData.visualPoint then
-			return a.noteData.noteType == "LongNoteEnd" and b.noteData.noteType ~= "LongNoteEnd"
+	table.sort(chart.notes, function(a, b)
+		if a:getTime() < b:getTime() then
+			return a.noteType == "LongNoteEnd" and b.noteType ~= "LongNoteEnd"
 		else
-			return false
+			return a < b
 		end
 	end)
 	local overlapCount = -1
-	for _, note in ipairs(notes) do
-		if note.noteData.noteType == "LongNoteStart" then
+	for _, note in chart.notes:iter() do
+		if note.noteType == "LongNoteStart" then
 			if overlapCount >= limit then
-				note.noteData.noteType = "ShortNote"
-				note.noteData.endNote.noteType = "Ignore"
+				note.noteType = "ShortNote"
+				note.endNote.noteType = "Ignore"
 			else
 				overlapCount = overlapCount + 1
 			end
-		elseif note.noteData.noteType == "LongNoteEnd" then
+		elseif note.noteType == "LongNoteEnd" then
 			overlapCount = overlapCount - 1
 		end
 	end
-	noteChart:compute()
+	chart:compute()
 end
 
 return MaxOverlap

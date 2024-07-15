@@ -25,9 +25,7 @@ local function _insert (chart, note)
 	table.insert(chart.notes.notes, note)
 
 	local column = note.column
-	local layer = chart.layers.main
-	local p = note.visualPoint.point
-	local vp = note.visualPoint --layer.visuals.main:newPoint(p)
+	local vp = note.visualPoint
 	---@cast vp ncdk2.VisualPoint
 
 	local point_notes = chart.notes.point_notes
@@ -37,23 +35,20 @@ local function _insert (chart, note)
 end
 
 ---@param config table
-function MoreChord:apply(config, noteChart)
+function MoreChord:apply(config, chart)
 	local value = config.value
-
-	local keyCount = noteChart.inputMode.key
-	print("key count " .. keyCount)
-
-	local sj = FixMap:findShortestJack(noteChart)
+	local keyCount = chart.inputMode.key
+	local sj = FixMap:findShortestJack(chart)
 	print("shortest jack " .. sj)
 
 	local notes = {}
-	for _, noteData in noteChart.notes:iter() do
+	for _, noteData in chart.notes:iter() do
 		if noteData.noteType == "ShortNote" or
 			noteData.noteType == "LongNoteStart"
 		then
 			table.insert(notes, {
 				noteData = noteData,
-				time = noteData.visualPoint.point.absoluteTime,
+				time = noteData:getTime(),
 			})
 		end
 	end
@@ -75,32 +70,13 @@ function MoreChord:apply(config, noteChart)
 				newN.endNote = newN.endNote:clone()
 				newN.endNote.startNote = newN
 				newN.endNote.column = "key" .. rngIndex
-				_insert(noteChart, newN.endNote)
+				_insert(chart, newN.endNote)
 			end
-			_insert(noteChart, newN)
+			_insert(chart, newN)
 		end
 	end
-	-- local ends = 0
-	-- local starts = 0
-	-- for _, noteData in noteChart.notes:iter() do
-	-- 	if noteData.noteType == "LongNoteStart" then starts = starts + 1 end
-	-- 	if noteData.noteType == "LongNoteEnd" then ends = ends + 1 end
-	-- 	if
-	-- 		noteData.noteType == "ShortNote" or
-	-- 		noteData.noteType == "LongNoteEnd" or
-	-- 		noteData.noteType == "LongNoteStart"
-	-- 	then
-	-- 		print(noteData.column .. " " .. noteData.visualPoint.point.absoluteTime .. " " .. noteData.noteType)
-	-- 		if noteData.endNote then
-	-- 			print("|_" .. noteData.endNote.column .. " " .. noteData.endNote.visualPoint.point.absoluteTime ..
-	-- 				" " .. noteData.endNote.noteType)
-	-- 		end
-	-- 	end
-	-- end
-	-- print("starts " .. starts .. " ends " .. ends)
-	-- print("________________________________________--")
-	--noteChart:compute()
-	FixMap:applyFix(noteChart, sj)
+	
+	FixMap:applyFix(chart, sj)
 end
 
 
