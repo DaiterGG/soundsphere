@@ -36,7 +36,6 @@ end
 
 ---@param config table
 function MoreChord:apply(config, chart)
-	local value = config.value
 	local keyCount = chart.inputMode.key
 	local sj = FixMap:findShortestJack(chart)
 	print("shortest jack " .. sj)
@@ -61,7 +60,7 @@ function MoreChord:apply(config, chart)
 	end
 
 	for _, line in pairs(lines) do
-		for i = 1, value do
+		for i = 1, config.value do
 			local rngIndex = math.random(1, keyCount)
 			local rngNote = math.random(1, #line)
 			local newN = line[rngNote].noteData:clone()

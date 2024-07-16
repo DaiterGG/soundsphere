@@ -31,6 +31,7 @@ local Modifiers = {
 	"MoreChord",
 	"MaxOverlap",
 	"Coop",
+	"FullBracket",
 }
 ModifierSelectModel.modifiers = Modifiers
 

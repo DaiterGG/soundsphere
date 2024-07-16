@@ -39,6 +39,7 @@ local Modifiers = {
 	MoreChord = 99905,
 	MaxOverlap = 99906,
 	Coop = 99907,
+	FullBracket = 99908,
 }
 ModifierModel.Modifiers = Modifiers
 
