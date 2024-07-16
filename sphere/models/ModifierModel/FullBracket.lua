@@ -58,11 +58,11 @@ function FullBracket:apply(config, chart)
 	local blockedColumns = {}
 	local notesDeleted = 0
 	for _, line in ipairs(ilines) do
-		print(line.time)
+		--print(line.time)
 		if line.time - prevLine2.time < sj then
 			for _, n in ipairs(prevLine2) do
 				blockedColumns[n.column] = true
-				print("SJ TRIGGERED " .. n.column)
+				--print("SJ TRIGGERED " .. n.column)
 			end
 		end
 		local notesToMove = {}
@@ -75,9 +75,9 @@ function FullBracket:apply(config, chart)
 				blockedColumns[line[i].column - 1] = true
 			end
 		end
-		print("line " .. #line)
+		--print("line " .. #line)
 		--self:show(blockedColumns)
-		print("notesToMove " .. #notesToMove)
+		--print("notesToMove " .. #notesToMove)
 		if #notesToMove > 0 then
 			for n = 1, #notesToMove do
 				local seed = math.random(0, keyCount - 1)
@@ -85,7 +85,7 @@ function FullBracket:apply(config, chart)
 				for c = 1, keyCount do
 					local newC = math.fmod(seed + c - 1, keyCount) + 1
 					if not blockedColumns[newC] then
-						print("note Moved from " .. notesToMove[n].noteData.column .. " to " .. newC)
+						--print("note Moved from " .. notesToMove[n].noteData.column .. " to " .. newC)
 						notesToMove[n].noteData.column = "key" .. newC
 						notesToMove[n].column = newC
 						blockedColumns[newC - 1] = true
@@ -108,19 +108,19 @@ function FullBracket:apply(config, chart)
 						if line[i].noteData == notesToMove[n].noteData then
 							table.remove(line, i)
 							notesDeleted = notesDeleted + 1
-							print("note removed from line " .. #line)
+							--print("note removed from line " .. #line)
 							break
 						end
 					end
 				end
 			end
 		end
-		print("new line " .. #line)
+		--print("new line " .. #line)
 		blockedColumns = {}
 		for i = 1, #line do
 			blockedColumns[line[i].column] = true
 		end
-		print("new blocked")
+		--print("new blocked")
 		--self:show(blockedColumns)
 		prevLine2 = prevLine
 		prevLine = line
@@ -130,9 +130,9 @@ function FullBracket:apply(config, chart)
 	FixMap:applyFix(chart, sj)
 end
 
-function FullBracket:show(blockedColumns)
-	for _, __ in pairs(blockedColumns) do
-		print(_ .. " " .. tostring(__))
-	end
-end
+-- function FullBracket:show(blockedColumns)
+-- 	for _, __ in pairs(blockedColumns) do
+-- 		print(_ .. " " .. tostring(__))
+-- 	end
+-- end
 return FullBracket
