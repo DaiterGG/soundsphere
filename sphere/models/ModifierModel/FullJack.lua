@@ -7,15 +7,38 @@ local InputMode = require("ncdk.InputMode")
 local FullJack = Modifier + {}
 
 FullJack.name = "FullJack"
-FullJack.shortName = "FJ"
 
-FullJack.description = "Position notes on top of each other"
+FullJack.defaultValue = 0
+FullJack.values = {}
+for i = 0, 25 do
+	table.insert(FullJack.values, i * 0.01) -- [0, 0.25]
+end
+for i = 1, 15 do
+	table.insert(FullJack.values, 0.25 + i * 0.05) -- [0.30, 1]
+end
+for i = 1, 30 do
+	table.insert(FullJack.values, 1 + i * 0.1) -- [1.1, 4]
+end
+
+---@param config table
+---@return string
+---@return string
+function FullJack:getString(config)
+	return "FJ", tostring(config.value * 100)
+end
+
+FullJack.description = "Position notes on top of each other\n'value' is a minimum distance between jacks\nwhen '0' it's based on original map"
 
 ---@param config table
 function FullJack:apply(config, chart)
 	local keyCount = chart.inputMode.key
-	local sj = FixMap:findShortestJack(chart)
-	print("shortest jack " .. sj)
+	local sj
+	if config.value == 0 then
+		sj = FixMap:findShortestJack(chart)
+		print("shortest jack " .. sj)
+	else
+		sj = config.value
+	end
 
 	local notes = {}
 	for _, noteData in chart.notes:iter() do
@@ -83,14 +106,13 @@ function FullJack:apply(config, chart)
 					end
 				end
 			end
-			columns = { lenght = 0 }
-			for i = 1, #line do
-				columns[line[i].column] = "free"
-				columns.lenght = columns.lenght + 1
-			end
-			--print("end")
+			lastTime = line.time
 		end
-		lastTime = line.time
+		columns = { lenght = 0 }
+		for i = 1, #line do
+			columns[line[i].column] = "free"
+			columns.lenght = columns.lenght + 1
+		end
 	end
 	--chart:compute()
 	FixMap:applyFix(chart, sj)
