@@ -32,6 +32,7 @@ local Modifiers = {
 	"MaxOverlap",
 	"Coop",
 	"FullBracket",
+	"FullJack",
 }
 ModifierSelectModel.modifiers = Modifiers
 

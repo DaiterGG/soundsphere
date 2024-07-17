@@ -40,6 +40,7 @@ local Modifiers = {
 	MaxOverlap = 99906,
 	Coop = 99907,
 	FullBracket = 99908,
+	FullJack = 99909,
 }
 ModifierModel.Modifiers = Modifiers
 

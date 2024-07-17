@@ -94,7 +94,6 @@ function FullBracket:apply(config, chart)
 						if notesToMove[n].noteData.endNote then
 							notesToMove[n].noteData.endNote.column = "key" .. newC
 						end
-						blockedColumns[newC] = true
 						moved = true
 						break
 					end
@@ -124,7 +123,7 @@ function FullBracket:apply(config, chart)
 		--self:show(blockedColumns)
 		prevLine2 = prevLine
 		prevLine = line
-		print("end")
+		--print("end")
 	end
 	print("notesDeleted: " .. notesDeleted)
 	FixMap:applyFix(chart, sj)
