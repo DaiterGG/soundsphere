@@ -66,7 +66,6 @@ function InputManager:apply(virtualKey, state, time)
 	self:send(virtualEvent)
 end
 local input = require("sphere.models.InputNotes")
-input:new()
 
 ---@param event table
 function InputManager:receive(event)
@@ -83,14 +82,15 @@ function InputManager:receive(event)
 
 	local timeEngine = self.timeEngine
 	local isPlaying = timeEngine.timer.isPlaying
-	if not isPlaying then return end
-	
-	local key = virtualKey:split("y")[2] --kill me
+
+	local key = tonumber(virtualKey:split("y")[2]) --kill me
 	if state then
 		input:press(key)
 	else
 		input:release(key)
 	end
+	if not isPlaying then return end
+	
 	self:apply(virtualKey, state, timeEngine.timer:transform(event.time))
 end
 

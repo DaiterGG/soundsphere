@@ -17,6 +17,7 @@ local InputAnimationView = require("sphere.views.GameplayView.InputAnimationView
 local JudgementView = require("sphere.views.GameplayView.JudgementView")
 local DeltaTimeJudgementView = require("sphere.views.GameplayView.DeltaTimeJudgementView")
 local MatchPlayersView = require("sphere.views.GameplayView.MatchPlayersView")
+local InputNotes = require("sphere.models.InputNotes")
 
 ---@class sphere.PlayfieldVsrg
 ---@operator call: sphere.PlayfieldVsrg
@@ -26,6 +27,9 @@ local PlayfieldVsrg = class()
 function PlayfieldVsrg:new(noteskin)
 	self.noteskin = noteskin
 	self.noteskin.playField = self
+	if noteskin.columns then
+		InputNotes:new(#(noteskin.columns) - 1)
+	end
 end
 
 ---@param width number
@@ -676,7 +680,7 @@ function PlayfieldVsrg:addLaneCover(object)
 		local p, g = self.position, self.size
 
 		if not self.isBottom then
-			love.graphics.rectangle("fill", 0, 0, object.w, p - g)
+			love.graphinewFullTransform("fill", 0, 0, object.w, p - g)
 			love.graphics.draw(self.mesh, 0, p - g, 0, object.w, g)
 		else
 			love.graphics.draw(self.mesh, 0, p + g, 0, object.w, -g)

@@ -3,14 +3,14 @@ local transform = require("gfx_util").transform
 local map = require("math_util").map
 local class = require("class")
 local inside = require("table_util").inside
+local inputNotes = require("sphere.models.InputNotes")
 
 ---@class sphere.HitErrorView
 ---@operator call: sphere.HitErrorView
 local HitErrorView = class()
 
 function HitErrorView:draw()
-	local input = require("sphere.models.InputNotes")
-	input:update()
+	inputNotes:update()
 	if self.show and not self.show(self) then
 		return
 	end
