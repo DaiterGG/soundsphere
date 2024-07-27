@@ -20,7 +20,7 @@ function ShortLogicalNote:update()
 	if self.ended then
 		return
 	end
-
+	
 	if not self.isPlayable or self.logicEngine.autoplay then
 		return self:processAuto()
 	end

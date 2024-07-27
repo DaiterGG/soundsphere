@@ -65,9 +65,12 @@ function InputManager:apply(virtualKey, state, time)
 	virtualEvent[1] = virtualKey
 	self:send(virtualEvent)
 end
+local input = require("sphere.models.InputNotes")
+input:new()
 
 ---@param event table
 function InputManager:receive(event)
+
 	if event.virtual and self.mode == "internal" then
 		self:send(event)
 		return
@@ -81,7 +84,13 @@ function InputManager:receive(event)
 	local timeEngine = self.timeEngine
 	local isPlaying = timeEngine.timer.isPlaying
 	if not isPlaying then return end
-
+	
+	local key = virtualKey:split("y")[2] --kill me
+	if state then
+		input:press(key)
+	else
+		input:release(key)
+	end
 	self:apply(virtualKey, state, timeEngine.timer:transform(event.time))
 end
 

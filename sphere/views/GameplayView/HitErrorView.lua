@@ -9,6 +9,8 @@ local inside = require("table_util").inside
 local HitErrorView = class()
 
 function HitErrorView:draw()
+	local input = require("sphere.models.InputNotes")
+	input:update()
 	if self.show and not self.show(self) then
 		return
 	end
@@ -44,6 +46,8 @@ function HitErrorView:drawBackground()
 		self.w,
 		self.h
 	)
+	
+
 end
 
 function HitErrorView:drawOrigin()
