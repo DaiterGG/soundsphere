@@ -17,7 +17,6 @@ local InputAnimationView = require("sphere.views.GameplayView.InputAnimationView
 local JudgementView = require("sphere.views.GameplayView.JudgementView")
 local DeltaTimeJudgementView = require("sphere.views.GameplayView.DeltaTimeJudgementView")
 local MatchPlayersView = require("sphere.views.GameplayView.MatchPlayersView")
-local InputNotes = require("sphere.models.InputNotes")
 
 ---@class sphere.PlayfieldVsrg
 ---@operator call: sphere.PlayfieldVsrg
@@ -27,9 +26,6 @@ local PlayfieldVsrg = class()
 function PlayfieldVsrg:new(noteskin)
 	self.noteskin = noteskin
 	self.noteskin.playField = self
-	if noteskin.columns then
-		InputNotes:new(#(noteskin.columns) - 1)
-	end
 end
 
 ---@param width number
