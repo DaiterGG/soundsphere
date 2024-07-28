@@ -12,7 +12,6 @@ function HitErrorView:draw()
 	if self.show and not self.show(self) then
 		return
 	end
-
 	local tf = transform(self.transform):translate(self.x, self.y)
 	love.graphics.replaceTransform(tf)
 

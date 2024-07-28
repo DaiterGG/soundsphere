@@ -82,7 +82,7 @@ function InputNotes:update()
 end
 
 function InputNotes:inline(startPos)
-    _ = {}
+    local _ = {}
     for i = 1, self.keyMod do
         local w = self.width
         if type(w) == "table" then
