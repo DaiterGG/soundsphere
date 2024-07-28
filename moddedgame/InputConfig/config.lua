@@ -64,7 +64,7 @@ return {
     },
 
     endPosY = { --limit of the displayed columns
-        default = 0, --0%, top
+        default = 50, --0%, top
         key4 = 0,
         key8 = 70,
 
