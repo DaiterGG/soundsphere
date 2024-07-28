@@ -1,5 +1,5 @@
 --all numbers are for 1920/1080 screen
---for example if you have 4k display, 860/540 is still a middle of the screen
+--for example, if you have 4k display, 860/540 is still a middle of the screen
 --0/0 is top left
 --key'number' override default
 --
@@ -31,8 +31,9 @@ return {
     },
 
     color = {
-        --red green blue transparency, from 0 to 1
+        --red, green, blue, transparency, from 0 to 1
         default = { 0.071, 0.788, 0.357, 0.5 },
+        key4 = { 0.071, 0.788, 0.357, 0.5 },
         key8 = {
             { 0.071, 0.271, 0.788, 0.4 },
             { 0.071, 0.573, 0.788, 0.4 },
@@ -56,18 +57,17 @@ return {
         key10 = { 0, 60, 60 * 2, 60 * 3, 60 * 4, 1920 - 60 * 5, 1920 - 60 * 4, 1920 - 60 * 3, 1920 - 60 * 2, 1920 - 60 },
     },
 
-    startPosY = { --vertically
+    startPosY = {      --vertically
         default = 100, --100%, bottom
+        -- key4 = {0, 0, 0, 0,}
         key4 = 100,
         key8 = 96,
-        -- key4 = {0, 0, 0, 0,}
     },
 
-    endPosY = { --limit of the displayed columns
+    endPosY = {       --limit of the displayed columns
         default = 50, --0%, top
+        -- key4 = {0, 0, 0, 0,}
         key4 = 0,
         key8 = 70,
-
-        -- key4 = {0, 0, 0, 0,}
     },
 }
