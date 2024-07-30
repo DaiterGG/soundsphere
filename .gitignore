@@ -13,6 +13,7 @@ userdata/hitsounds
 userdata/testcharts
 !userdata/hitsounds/midi
 
+userdata/skins/*
 userdata/data.db
 userdata/charts.db
 userdata/scores.db
