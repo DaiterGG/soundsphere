@@ -9,7 +9,7 @@ function InputAnimationView:load()
 end
 
 ---@param event table
-function InputAnimationView:receive(event)
+function InputAnimationView:receive(event)z
 	local key = event and event[1]
 
 	local found

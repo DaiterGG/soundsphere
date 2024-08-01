@@ -15,13 +15,27 @@ function InputMod:init()
     ModulePatcher:observe("sphere.views.GameplayView.CircleProgressView", "draw", function(self, instance, ...)
         InputNotes:update()
     end)
-    ModulePatcher:observe("sphere.models.RhythmModel.InputManager", "setState", function(self, instance, ...)
-        local virtualKey = select(2, ...)
-        local state = select(3, ...)
-        local key = tonumber(virtualKey:split("y")[2])
-        if state then
+    ModulePatcher:observe("sphere.views.GameplayView.InputAnimationView", "receive", function(self, instance, ...)
+        local _self = select(1, ...)
+        local event = select(2, ...)
+
+        local key = event and event[1]
+
+	    local found
+	    for _, input in ipairs(_self.inputs) do
+		    if key == input then
+			    found = true
+			    break
+		    end
+	    end
+	    if not found then
+	    	return
+	    end
+        local key = tonumber(key:split("y")[2])
+        
+        if event.name == "keypressed" then
             InputNotes:press(key)
-        else
+        elseif event.name == "keyreleased" then
             InputNotes:release(key)
         end
     end)
