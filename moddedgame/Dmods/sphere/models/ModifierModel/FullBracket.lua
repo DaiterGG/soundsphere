@@ -1,6 +1,7 @@
 local Modifier = require("sphere.models.ModifierModel.Modifier")
 local FixMap = require("sphere.models.ModifierModel.FixMap")
 local InputMode = require("ncdk.InputMode")
+local Notes = require("ncdk2.notes.Notes")
 
 ---@class sphere.FullBracket: sphere.Modifier
 ---@operator call: sphere.FullBracket
@@ -27,22 +28,34 @@ function FullBracket:apply(config, chart)
 	local sj = FixMap:findShortestJack(chart)
 	print("shortest jack " .. sj)
 
-	local notes = {}
-	for _, noteData in chart.notes:iter() do
-		if noteData.noteType == "ShortNote" or
-			noteData.noteType == "LongNoteStart"
-		then
-			local _, key = InputMode:splitInput(noteData.column)
-			table.insert(notes, {
-				noteData = noteData,
-				column = key
+    local keyChart = {}
+    local new_notes = Notes()
 
-			})
-		end
-	end
+    for _, lnote in ipairs(chart.notes:getLinkedNotes()) do
+        local inputType, inputIndex = InputMode:splitInput(lnote:getColumn())
+        if inputType == "key" and lnote.startNote.type ~= "ignore" then
+            local n = {}
+
+            n.lData = lnote
+            n.startNote = lnote.startNote
+            if lnote.endNote and lnote.endNote.type ~= "ignore" then
+                n.endNote = lnote.endNote
+            end
+            n.startTime = lnote:getStartTime()
+            n.endTime = lnote:getEndTime()
+            n.column = inputIndex
+
+            keyChart[#keyChart + 1] = n
+        else
+            new_notes:insert(lnote.startNote)
+            if lnote.endNote then new_notes:insert(lnote.endNote) end
+        end
+    end
+    chart.notes = new_notes
+
 	local lines = {}
-	for _, note in ipairs(notes) do
-		local time = note.noteData:getTime()
+	for _, note in ipairs(keyChart) do
+		local time = note.startTime
 		lines[time] = lines[time] or { time = time }
 		table.insert(lines[time], note)
 	end
@@ -86,25 +99,24 @@ function FullBracket:apply(config, chart)
 					local newC = math.fmod(seed + c - 1, keyCount) + 1
 					if not blockedColumns[newC] then
 						--print("note Moved from " .. notesToMove[n].noteData.column .. " to " .. newC)
-						notesToMove[n].noteData.column = "key" .. newC
+						notesToMove[n].lData:setColumn("key" .. newC)
 						notesToMove[n].column = newC
 						blockedColumns[newC - 1] = true
 						blockedColumns[newC] = true
 						blockedColumns[newC + 1] = true
-						if notesToMove[n].noteData.endNote then
-							notesToMove[n].noteData.endNote.column = "key" .. newC
-						end
 						moved = true
 						break
 					end
 				end
 				if not moved then
-					notesToMove[n].noteData.noteType = "Ignore"
+					notesToMove[n].startNote.type = "ignore"
 					if notesToMove[n].noteData.endNote then
-						notesToMove[n].noteData.endNote.noteType = "Ignore"
+						notesToMove[n].startNote.type = "ignore"
 					end
+					notesToMove[n].lData:unlink()
 					for i = 1, #line do
-						if line[i].noteData == notesToMove[n].noteData then
+						if line[i].starTime == notesToMove[n].starTime and
+						line[i].column == notesToMove[n].column then
 							table.remove(line, i)
 							notesDeleted = notesDeleted + 1
 							--print("note removed from line " .. #line)
@@ -126,7 +138,7 @@ function FullBracket:apply(config, chart)
 		--print("end")
 	end
 	print("notesDeleted: " .. notesDeleted)
-	FixMap:applyFix(chart, sj)
+	FixMap:applyFix(chart, keyChart, sj)
 end
 
 -- function FullBracket:show(blockedColumns)

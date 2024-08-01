@@ -27,26 +27,29 @@ function MaxChordLN:getString(config)
 end
 
 
----@param noteData ncdk2.Note
+---@param note ncdk2.LinkedNote
 ---@return boolean
-local function checkNote(noteData)
-	return noteData.noteType == "ShortNote" or noteData.noteType == "LongNoteStart"
+local function checkNote(note)
+	local t = note:getType()
+	return t == "note" or t == "hold"
 end
 
----@param noteDatas table
+
+---@param notes ncdk2.LinkedNote[]
 ---@param i number
----@param dir number?
+---@param dir number?  -- 1 = forward, -1 = backward
 ---@return number
-local function getNextTime(noteDatas, i, dir)
+local function getNextTime(notes, i, dir)
 	dir = dir or 1
-	for j = i + dir, #noteDatas, dir do
-		local noteData = noteDatas[j]
-		if checkNote(noteData) then
-			return noteData.visualPoint.point.absoluteTime
+	for j = i + dir, #notes, dir do
+		local note = notes[j]
+		if checkNote(note) then
+			return note:getStartTime()
 		end
 	end
-	return math.huge
+	return math.huge * dir
 end
+
 
 ---@param a table
 ---@param b table
@@ -55,10 +58,11 @@ local function sortByColumn(a, b)
 	return a.column < b.column
 end
 
----@param line table
+---@param line table[]
 ---@param columns number
 ---@return string
 local function getCounterKey(line, columns)  -- use bit.bor
+	---@type integer[]
 	local t = {}
 	for i = 1, columns do
 		t[i] = 0
@@ -69,10 +73,10 @@ local function getCounterKey(line, columns)  -- use bit.bor
 	return table.concat(t)
 end
 
----@param t table
----@param v any
----@return any?
-local function removeValue(t, v)
+---@param t table[]
+---@param v table
+---@return table?
+local function removeNote(t, v)
 	for i, _v in ipairs(t) do
 		if _v == v then
 			table.remove(t, i)
@@ -81,7 +85,9 @@ local function removeValue(t, v)
 	end
 end
 
+---@param size integer
 local function zeroes(size)
+	---@type integer[]
 	local t = {}
 	for i = 1, size do
 		t[i] = 0
@@ -97,19 +103,18 @@ function MaxChordLN:apply(config, chart)
 
 	local notes = {}
 
-	local column_notes = chart.notes:getColumnNotes()
+	local column_notes = chart.notes:getColumnLinkedNotes()
 	for column, _notes in pairs(column_notes) do
 		local inputType, inputIndex = InputMode:splitInput(column)
 		if inputType == "key" then
 			for i, note in ipairs(_notes) do
-				if note.noteType == "LongNoteStart" then
+				if note.startNote.weight == 1 then
 					table.insert(notes, {
-						noteData = note,
-						time = note:getTime(),
+						baseNote = note,
+						time = note:getStartTime(),
 						nextTime = getNextTime(_notes, i),
 						prevTime = getNextTime(_notes, i, -1),
-						inputType = inputIndex,
-						inputIndex = inputIndex,
+						inputIndex = inputIndex,  -- for auto
 						column = inputIndex,
 					})
 				end
@@ -159,7 +164,7 @@ function MaxChordLN:apply(config, chart)
 			end
 
 			if #notesToDelete == 1 then
-				removeValue(line, notesToDelete[1])
+				removeNote(line, notesToDelete[1])
 				table.insert(deletedNotes, notesToDelete[1])
 			else
 				local key = getCounterKey(notesToDelete, columns)
@@ -174,7 +179,7 @@ function MaxChordLN:apply(config, chart)
 				end
 				local note = notesToDelete[min_cIndex]
 				counter[min_cIndex] = counter[min_cIndex] + 1
-				removeValue(line, note)
+				removeNote(line, note)
 				table.insert(deletedNotes, note)
 
 				local s = 0
@@ -189,11 +194,11 @@ function MaxChordLN:apply(config, chart)
 	end
 
 	for _, note in ipairs(deletedNotes) do
-		local noteData = note.noteData
-		noteData.noteType = "ShortNote"
-		if noteData.endNote then
-			noteData.endNote.noteType = "Ignore"
-		end
+		---@type ncdk2.LinkedNote
+		local _note = note.baseNote
+		_note.startNote.type = "note"
+        _note.endNote.type = "ignore"
+        _note:unlink()
 	end
 end
 
