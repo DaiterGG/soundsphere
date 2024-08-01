@@ -1,0 +1,73 @@
+local ModulePatcher = require("moddedgame.ModulePatcher.ModulePatcher")
+
+local InputMod = {}
+
+function InputMod:init()
+    ModulePatcher:insert("sphere.models.ModifierModel.ModifierRegistry", "list", {
+        "WindUp",
+        "NoScratch",
+        "NoLongNote",
+        "Automap",
+        "MultiplePlay",
+        "MultiOverPlay",
+        "Taiko",
+        "Alternate",
+        "Alternate2",
+        "Shift",
+        "Mirror",
+        "Random",
+        "BracketSwap",
+        "MaxChord",
+        "LessChord",
+        "FullLongNote",
+        "MinLnLength",
+        "AddLane",
+        "MaxChordLN",
+        "FixMap",
+        "Shuffle",
+        "MoreChord",
+        "MaxOverlap",
+        "Coop",
+        "FullBracket",
+        "FullJack",
+    })
+    ModulePatcher:insert("sphere.models.ModifierModel.ModifierRegistry", "enum", {
+        -- AutoPlay = 0,
+        -- ProMode = 1,
+        -- AutoKeySound = 2,
+        -- ConstSpeed = 3,
+        -- TimeRateQ = 4,
+        -- TimeRateX = 5,
+        WindUp = 6,
+        -- AudioClip = 7,
+        NoScratch = 8,
+        NoLongNote = 9,
+        -- NoMeasureLine = 10,
+        Automap = 11,
+        MultiplePlay = 12,
+        MultiOverPlay = 13,
+        Alternate = 14,
+        Shift = 15,
+        Mirror = 16,
+        Random = 17,
+        BracketSwap = 18,
+        FullLongNote = 19,
+        MinLnLength = 20,
+        -- ToOsu = 21,
+        Alternate2 = 22,
+        LessChord = 23,
+        MaxChord = 24,
+        Taiko = 25,
+        AddLane = 99901,
+        MaxChordLN = 99902,
+        FixMap = 99903,
+        Shuffle = 99904,
+        MoreChord = 99905,
+        MaxOverlap = 99906,
+        Coop = 99907,
+        FullBracket = 99908,
+        FullJack = 99909
+    })
+end
+
+return InputMod
