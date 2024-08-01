@@ -36,6 +36,7 @@ function InputNotes:new(keyMod)
 end
 
 function InputNotes:press(column)
+    if self.pressed[column] then return end
     local w = self.width
     if type(w) == "table" then
         w = w[column]

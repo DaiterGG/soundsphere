@@ -37,6 +37,7 @@ end
 ---@param state boolean
 function InputManager:setState(virtualKey, state)
 	self.state[virtualKey] = state
+	print("setstate")
 end
 
 function InputManager:loadState()
@@ -60,6 +61,8 @@ local virtualEvent = {virtual = true}
 ---@param state boolean
 ---@param time number
 function InputManager:apply(virtualKey, state, time)
+	print("apply")
+
 	virtualEvent.time = math.floor(time * 1024) / 1024
 	virtualEvent.name = state and "keypressed" or "keyreleased"
 	virtualEvent[1] = virtualKey

@@ -18,7 +18,7 @@ function InputMod:init()
     ModulePatcher:observe("sphere.models.RhythmModel.InputManager", "setState", function(self, instance, ...)
         local virtualKey = select(2, ...)
         local state = select(3, ...)
-        local key = tonumber(virtualKey:split("y")[2]) --kill me
+        local key = tonumber(virtualKey:split("y")[2])
         if state then
             InputNotes:press(key)
         else
