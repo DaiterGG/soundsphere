@@ -36,7 +36,6 @@ userdata/lasterror.txt
 
 userdata/charts.db-journal
 userdata/scores.db-journal
-userdata/*
 
 reqprof
 typecheck
