@@ -31,21 +31,26 @@ function FullBracket:apply(config, chart)
     local keyChart = {}
     local new_notes = Notes()
 
-    for _, lnote in ipairs(chart.notes:getLinkedNotes()) do
+	for _, lnote in ipairs(chart.notes:getLinkedNotes()) do
         local inputType, inputIndex = InputMode:splitInput(lnote:getColumn())
-        if inputType == "key" and lnote.startNote.type ~= "ignore" then
-            local n = {}
+        if inputType == "key" then
+            if lnote.startNote.type ~= "ignore" then --exlude all "ignore" notes 
+                if lnote.endNote and lnote.endNote.type == "ignore" then
+                    lnote.startNote.type = "note"
+                    lnote:unlink()
+                    lnote.endNote = nil
+                end
+                local n = {}
 
-            n.lData = lnote
-            n.startNote = lnote.startNote
-            if lnote.endNote and lnote.endNote.type ~= "ignore" then
+                n.lData = lnote
+                n.startNote = lnote.startNote
                 n.endNote = lnote.endNote
+                n.startTime = lnote:getStartTime()
+                n.endTime = lnote:getEndTime()
+                n.column = inputIndex
+                
+                keyChart[#keyChart + 1] = n
             end
-            n.startTime = lnote:getStartTime()
-            n.endTime = lnote:getEndTime()
-            n.column = inputIndex
-
-            keyChart[#keyChart + 1] = n
         else
             new_notes:insert(lnote.startNote)
             if lnote.endNote then new_notes:insert(lnote.endNote) end
@@ -109,11 +114,7 @@ function FullBracket:apply(config, chart)
 					end
 				end
 				if not moved then
-					notesToMove[n].startNote.type = "ignore"
-					if notesToMove[n].noteData.endNote then
-						notesToMove[n].startNote.type = "ignore"
-					end
-					notesToMove[n].lData:unlink()
+					notesToMove[n].toDelete = true
 					for i = 1, #line do
 						if line[i].starTime == notesToMove[n].starTime and
 						line[i].column == notesToMove[n].column then
@@ -136,6 +137,14 @@ function FullBracket:apply(config, chart)
 		prevLine2 = prevLine
 		prevLine = line
 		--print("end")
+	end
+	local i = 1
+	while i <= #keyChart do
+		if keyChart[i].toDelete then
+			table.remove(keyChart, i)
+		else
+			i = i + 1
+		end
 	end
 	print("notesDeleted: " .. notesDeleted)
 	FixMap:applyFix(chart, keyChart, sj)

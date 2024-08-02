@@ -21,7 +21,7 @@ function MaxOverlap:getString(config) return "MO", tostring(config.value) end
 ---@param config table
 function MaxOverlap:apply(config, chart)
     local limit = config.value
-    LNs = {}
+    local LNs = {}
     for _, note in ipairs(chart.notes:getLinkedNotes()) do
         if note:isLong() then
             table.insert(LNs, {lData = note, note = note.startNote, endNote = note.endNote})

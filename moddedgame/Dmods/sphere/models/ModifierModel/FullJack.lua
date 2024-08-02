@@ -45,19 +45,24 @@ function FullJack:apply(config, chart)
 
     for _, lnote in ipairs(chart.notes:getLinkedNotes()) do
         local inputType, inputIndex = InputMode:splitInput(lnote:getColumn())
-        if inputType == "key" and lnote.startNote.type ~= "ignore" then
-            local n = {}
+        if inputType == "key" then
+            if lnote.startNote.type ~= "ignore" then --exlude all "ignore" notes 
+                if lnote.endNote and lnote.endNote.type == "ignore" then
+                    lnote.startNote.type = "note"
+                    lnote:unlink()
+                    lnote.endNote = nil
+                end
+                local n = {}
 
-            n.lData = lnote
-            n.startNote = lnote.startNote
-            if lnote.endNote and lnote.endNote.type ~= "ignore" then
+                n.lData = lnote
+                n.startNote = lnote.startNote
                 n.endNote = lnote.endNote
+                n.startTime = lnote:getStartTime()
+                n.endTime = lnote:getEndTime()
+                n.column = inputIndex
+                
+                keyChart[#keyChart + 1] = n
             end
-            n.startTime = lnote:getStartTime()
-            n.endTime = lnote:getEndTime()
-            n.column = inputIndex
-
-            keyChart[#keyChart + 1] = n
         else
             new_notes:insert(lnote.startNote)
             if lnote.endNote then new_notes:insert(lnote.endNote) end

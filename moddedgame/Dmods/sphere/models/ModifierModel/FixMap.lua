@@ -22,7 +22,7 @@ for i = 1, 30 do
 end
 
 FixMap.description =
-    "Prevent imposible overlaping and jacks shorter than 'value'"
+"Prevent imposible overlaping and jacks shorter than 'value'"
 
 ---@param config table
 ---@return string
@@ -31,25 +31,29 @@ function FixMap:getString(config) return "FIX", tostring(config.value * 100) end
 
 ---@param config table
 function FixMap:apply(config, chart)
-
     local keyChart = {}
     local new_notes = Notes()
 
     for _, lnote in ipairs(chart.notes:getLinkedNotes()) do
         local inputType, inputIndex = InputMode:splitInput(lnote:getColumn())
-        if inputType == "key" and lnote.startNote.type ~= "ignore" then
-            local n = {}
+        if inputType == "key" then
+            if lnote.startNote.type ~= "ignore" then --exlude all "ignore" notes
+                if lnote.endNote and lnote.endNote.type == "ignore" then
+                    lnote.startNote.type = "note"
+                    lnote:unlink()
+                    lnote.endNote = nil
+                end
+                local n = {}
 
-            n.lData = lnote
-            n.startNote = lnote.startNote
-            if lnote.endNote and lnote.endNote.type ~= "ignore" then
+                n.lData = lnote
+                n.startNote = lnote.startNote
                 n.endNote = lnote.endNote
-            end
-            n.startTime = lnote:getStartTime()
-            n.endTime = lnote:getEndTime()
-            n.column = inputIndex
+                n.startTime = lnote:getStartTime()
+                n.endTime = lnote:getEndTime()
+                n.column = inputIndex
 
-            keyChart[#keyChart + 1] = n
+                keyChart[#keyChart + 1] = n
+            end
         else
             new_notes:insert(lnote.startNote)
             if lnote.endNote then new_notes:insert(lnote.endNote) end
@@ -60,22 +64,23 @@ function FixMap:apply(config, chart)
 end
 
 -- use this method if your modifier is breaking a map
-function FixMap:applyFix(chart, editChart, duration)
+-- keyChart can't have any "ignore" notes
+function FixMap:applyFix(chart, keyChart, duration)
     self.chart = chart
     self.duration = duration
-    table.sort(editChart, function(a, b) return a.startTime < b.startTime end)
+    table.sort(keyChart, function(a, b) return a.startTime < b.startTime end)
     local inputCount = chart.inputMode.key
+    local notes = keyChart
+
     local x = 0
-    local notes = editChart
-
-   
-    for i, lnote in pairs(notes) do
-        print(lnote.startNote, lnote.endNote)
-    end
-
-
     while x < #notes do
         x = x + 1
+        if notes[x].startNote.type == "ignore" then
+            error(notes[x].startNote .. "type == ignore")
+        end
+        if notes[x].endNote and notes[x].endNote.type == "ignore" then
+            error(notes[x].endNote .. "type == ignore")
+        end
         local obstructions = {}
         for _, _note in pairs(notes) do
             if _note ~= notes[x] and _note.column == notes[x].column and
@@ -154,20 +159,23 @@ function FixMap:applyFix(chart, editChart, duration)
                 --print("give up")
 
                 notes[x].startNote.type = "ignore"
-                notes[x].startNote.weight = 0
                 if notes[x].endNote then
                     notes[x].endNote.type = "ignore"
-                    notes[x].endNote.weight = 0
+                    notes[x].lData:unlink()
                 end
                 table.remove(notes, x)
                 x = x - 1
             end
         end
     end
-   
     for i, lnote in pairs(notes) do
-        print(lnote.startNote, lnote.endNote)
-        chart.notes:insertLinked(lnote)
+        --print(lnote.startNote, lnote.endNote)
+        -- if lnote.endNote and lnote.endnote.type == "ignore" then
+        --     lnote.lData:unlink()
+        -- end
+        if lnote.startNote.type ~= "ignore" then
+            chart.notes:insertLinked(lnote.lData)
+        end
     end
 
     chart:compute()
@@ -187,6 +195,8 @@ function FixMap:shortenLN(note, LN)
         LN.startNote.type = "note"
         LN.endNote.type = "ignore"
         LN.lData:unlink()
+        LN.endNote = nil
+        LN.endTime = LN.startTime
     end
 end
 

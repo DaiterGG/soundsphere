@@ -199,7 +199,7 @@ function MaxChordLN:apply(config, chart)
 		_note.startNote.type = "note"
         _note.endNote.type = "sample"
 		local key = _note.endNote.column:split("y")[2]
-		_note.endNote.column = "auto" .. key
+		--_note.endNote.column = "auto" .. key
         _note:unlink()
 	end
 	chart:compute()
