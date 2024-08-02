@@ -676,7 +676,7 @@ function PlayfieldVsrg:addLaneCover(object)
 		local p, g = self.position, self.size
 
 		if not self.isBottom then
-			love.graphinewFullTransform("fill", 0, 0, object.w, p - g)
+			love.graphics.rectangle("fill", 0, 0, object.w, p - g)
 			love.graphics.draw(self.mesh, 0, p - g, 0, object.w, g)
 		else
 			love.graphics.draw(self.mesh, 0, p + g, 0, object.w, -g)
