@@ -68,6 +68,12 @@ function FixMap:applyFix(chart, editChart, duration)
     local x = 0
     local notes = editChart
 
+   
+    for i, lnote in pairs(notes) do
+        print(lnote.startNote, lnote.endNote)
+    end
+
+
     while x < #notes do
         x = x + 1
         local obstructions = {}
@@ -160,7 +166,7 @@ function FixMap:applyFix(chart, editChart, duration)
     end
    
     for i, lnote in pairs(notes) do
-        --print(lnote.startNote, lnote.endNote)
+        print(lnote.startNote, lnote.endNote)
         chart.notes:insertLinked(lnote)
     end
 

@@ -197,9 +197,12 @@ function MaxChordLN:apply(config, chart)
 		---@type ncdk2.LinkedNote
 		local _note = note.baseNote
 		_note.startNote.type = "note"
-        _note.endNote.type = "ignore"
+        _note.endNote.type = "sample"
+		local key = _note.endNote.column:split("y")[2]
+		_note.endNote.column = "auto" .. key
         _note:unlink()
 	end
+	chart:compute()
 end
 
 return MaxChordLN
