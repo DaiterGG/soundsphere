@@ -19,6 +19,17 @@ function AddLane:getString(config)
 end
 
 ---@param config table
+---@param state table
+function AddLane:applyMeta(config, state)
+	local columnCount = state.inputMode.key
+	if not columnCount then
+		return
+	end
+	state.inputMode.key = state.inputMode.key + config.value
+end
+
+
+---@param config table
 function AddLane:apply(config, chart)
 	chart.inputMode.key = chart.inputMode.key + config.value
 	chart:compute()

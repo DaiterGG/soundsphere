@@ -21,6 +21,17 @@ Coop.description =
 function Coop:getString(config) return tostring(config.value), "COO" end
 
 ---@param config table
+---@param state table
+function Coop:applyMeta(config, state)
+	local columnCount = state.inputMode.key
+	if not columnCount then
+		return
+	end
+	state.inputMode.key = state.inputMode.key * 2
+end
+
+
+---@param config table
 function Coop:apply(config, chart)
 
     local keyChart = {}
